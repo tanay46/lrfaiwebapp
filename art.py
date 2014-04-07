@@ -3,16 +3,32 @@ import re
 from pyGTrends import pyGTrends
 import csv, datetime, time, getpass, sys
 import json
+import os
+import datetime
+import pymongo
+from pymongo import MongoClient
 
 class ArtData:
 
   def __init__(self, name):
     self.artistname = name
+    self.MONGOHQ_URL= "mongodb://tanay:tanay@oceanic.mongohq.com:10049/artists"
 
-  def makeartist(self, name):
+  def makeartist(self):
     wiki = self.wikipedia()
     instagram = self.instagram()
-    
+    googletrends = self.googletrends()
+    artist = {"name": self.artistname,
+              "wiki" : wiki,
+              "instagram" : instagram,
+              "google" : googletrends
+              }
+    client = MongoClient(self.MONGOHQ_URL)
+    db = client.artists
+    collection = db.artists
+    artist_id = collection.insert(artist)
+    print artist_id
+
 
   def wikipedia(self):
     # Get a file-like object for the Python Web site's home page.
@@ -44,34 +60,32 @@ class ArtData:
       values.append(int(r.groups()[0]))
       months.append(yearmonth)
       f.close()
-    print wiki
+    print "finished wiki"
     return wiki
     # print values
     # print months
 
   def googletrends(self):
-    self.getGTData(self.artistname)
+    return self.getGTData(self.artistname)
 
   def instagram(self):
     clientid = "d88fc4bf02b84531b4b908d806d1c101" 
     namenospace = self.artistname.replace(' ', '')
     url = "https://api.instagram.com/v1/tags/"+ namenospace + "?client_id=" + clientid
-    print url
     f = urllib.urlopen(url)
     s = f.read()
     x = json.loads(s)
-    print x
     if x['meta']['code'] == 200:
       number = x['data']['media_count']
+      print "finished insta"
       return number
-      print number
 
   def getGTData(self, search_query = "debt", date="all", geo="all", scale="1", position = "end" ):
     print search_query
     dict = {}
     endlist = []
     countlist = []
-    connector = pyGTrends( "larotondeapi", "dstegroup")
+    connector = pyGTrends( "larotondeapi", "dstegroup1")
     connector.download_report( ( search_query ) 
            , date = date
                              , geo = geo
@@ -94,8 +108,7 @@ class ArtData:
           except:
             break
     print dict
-    print endlist[-62:]
-    print countlist[-62:]
+    return dict
 
 
       # data = connector.csv( section='Main' ).split('\n')
@@ -143,11 +156,5 @@ class ArtData:
 
 
 x = ArtData("Andy Warhol")
-x.wikipedia()
-# x.googletrends()
-x.instagram()
-y = ArtData("Gerhard Richter")
-# y.wikipedia()
-# y.googletrends()
-
+x.makeartist()
 
