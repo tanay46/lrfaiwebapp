@@ -9,10 +9,16 @@ class ArtData:
   def __init__(self, name):
     self.artistname = name
 
+  def makeartist(self, name):
+    wiki = self.wikipedia()
+    instagram = self.instagram()
+    
+
   def wikipedia(self):
     # Get a file-like object for the Python Web site's home page.
     values = []
     months = []
+    wiki = {}
     for i in range(1,13):
       if i < 10:
         yearmonth = "20130" + str(i)
@@ -23,6 +29,7 @@ class ArtData:
       s = f.read()
       regex = re.compile("has been viewed (\d*)")
       r = regex.search(s)
+      wiki[yearmonth] = int(r.groups()[0])
       values.append(int(r.groups()[0]))
       months.append(yearmonth)
       f.close()
@@ -33,11 +40,14 @@ class ArtData:
       s = f.read()
       regex = re.compile("has been viewed (\d*)")
       r = regex.search(s)
+      wiki[yearmonth] = int(r.groups()[0])
       values.append(int(r.groups()[0]))
       months.append(yearmonth)
       f.close()
-    print values
-    print months
+    print wiki
+    return wiki
+    # print values
+    # print months
 
   def googletrends(self):
     self.getGTData(self.artistname)
@@ -53,6 +63,7 @@ class ArtData:
     print x
     if x['meta']['code'] == 200:
       number = x['data']['media_count']
+      return number
       print number
 
   def getGTData(self, search_query = "debt", date="all", geo="all", scale="1", position = "end" ):
@@ -132,8 +143,8 @@ class ArtData:
 
 
 x = ArtData("Andy Warhol")
-# x.wikipedia()
-x.googletrends()
+x.wikipedia()
+# x.googletrends()
 x.instagram()
 y = ArtData("Gerhard Richter")
 # y.wikipedia()
