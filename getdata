@@ -1,0 +1,14 @@
+class ArtData:
+	import urllib
+	name = "Andy Warhol"
+
+	def wikipedia():
+		# Get a file-like object for the Python Web site's home page.
+		for i in range(1,3):	
+			website = "http://stats.grok.se/en/20140" + i + "/" + name 
+			f = urllib.urlopen(website)
+			s = f.read()
+			print s
+			f.close()
+
+
