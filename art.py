@@ -10,18 +10,35 @@ from pymongo import MongoClient
 
 class ArtData:
 
-  def __init__(self, name):
-    self.artistname = name
+  def __init__(self):
     self.MONGOHQ_URL= "mongodb://tanay:tanay@oceanic.mongohq.com:10049/artists"
 
-  def makeartist(self):
-    wiki = self.wikipedia()
-    instagram = self.instagram()
-    googletrends = self.googletrends()
-    artist = {"name": self.artistname,
-              "wiki" : wiki,
+  def start(self):
+    artists = open("artists.txt", 'rw')
+    listofart = []
+    for line in artists:
+      line = line.strip()
+      listofart.append(line)
+    print listofart
+    for name in listofart[0:5]:
+      self.makeartist(name)
+
+  def makeartist(self, artistname):
+    wiki = self.wikipedia(artistname)
+    wikix = wiki[1]
+    wikiy = wiki[0]
+    instagram = self.instagram(artistname)
+    googletrends = self.googletrends(artistname)
+    gtrendsx = googletrends[0]
+    gtrendsy = googletrends[1]
+    nameclean = artistname.replace(" ", "").lower()
+    artist = {"name": artistname,
+              "nameclean" : nameclean,
+              "wikix" : wikix,
+              "wikiy" : wikiy,
               "instagram" : instagram,
-              "google" : googletrends
+              "googlex" : gtrendsx,
+              "googley" : gtrendsy
               }
     client = MongoClient(self.MONGOHQ_URL)
     db = client.artists
@@ -30,7 +47,7 @@ class ArtData:
     print artist_id
 
 
-  def wikipedia(self):
+  def wikipedia(self, artistname):
     # Get a file-like object for the Python Web site's home page.
     values = []
     months = []
@@ -40,7 +57,7 @@ class ArtData:
         yearmonth = "20130" + str(i)
       else:
         yearmonth = "2013" + str(i)
-      website = "http://stats.grok.se/en/" + yearmonth + "/" + self.artistname 
+      website = "http://stats.grok.se/en/" + yearmonth + "/" + artistname 
       f = urllib.urlopen(website)
       s = f.read()
       regex = re.compile("has been viewed (\d*)")
@@ -51,7 +68,7 @@ class ArtData:
       f.close()
     for i in range(1,4):  
       yearmonth = "20140" + str(i)
-      website = "http://stats.grok.se/en/" + yearmonth + "/" + self.artistname 
+      website = "http://stats.grok.se/en/" + yearmonth + "/" + artistname 
       f = urllib.urlopen(website)
       s = f.read()
       regex = re.compile("has been viewed (\d*)")
@@ -61,16 +78,16 @@ class ArtData:
       months.append(yearmonth)
       f.close()
     print "finished wiki"
-    return wiki
+    return [values, months]
     # print values
     # print months
 
-  def googletrends(self):
-    return self.getGTData(self.artistname)
+  def googletrends(self, artistname):
+    return self.getGTData(artistname)
 
-  def instagram(self):
+  def instagram(self, artistname):
     clientid = "d88fc4bf02b84531b4b908d806d1c101" 
-    namenospace = self.artistname.replace(' ', '')
+    namenospace = artistname.replace(' ', '')
     url = "https://api.instagram.com/v1/tags/"+ namenospace + "?client_id=" + clientid
     f = urllib.urlopen(url)
     s = f.read()
@@ -97,7 +114,7 @@ class ArtData:
     x = connector.csv( section='Main', as_list=True )
     for item in x:
       date = item[0]
-      if " " and "-" in date:
+      if " - " in date:
         enddate = date.split(" ")[2]
         if (len(item[1])>0):
           try:
@@ -107,8 +124,17 @@ class ArtData:
             countlist.append(count)
           except:
             break
+      elif "-" in date:
+        if (len(item[1])>0):
+          try:
+            count = int(item[1])
+            dict[date] = count
+            endlist.append(date)
+            countlist.append(count)
+          except:
+            break
     print dict
-    return dict
+    return [endlist[-52:], countlist[-52:]]
 
 
       # data = connector.csv( section='Main' ).split('\n')
@@ -155,6 +181,7 @@ class ArtData:
      #    print "File saved: %s " % ( search_query + '_google_report.csv' )
 
 
-x = ArtData("Andy Warhol")
-x.makeartist()
+x = ArtData()
+x.start()
+# x.makeartist()
 
