@@ -53,6 +53,7 @@ class ArtData:
       fb = self.facebook(artistname)
       fbx = fb[0]
       fby = fb[1]
+      fby2 = fb[2]
       auc = self.auction(artistname)
       aucx = auc[0]
       auclow = auc[1]
@@ -70,6 +71,7 @@ class ArtData:
                 "artnet" : artnetr,
                 "fbx" : fbx,
                 "fby" : fby,
+                "fby2" : fby2,
                 "aucx" : aucx,
                 "auclow" : auclow,
                 "auchigh" : auchigh,
@@ -224,6 +226,8 @@ class ArtData:
     fbartistmap = {'Banksy':'banksy', 'Andy Warhol':'andywarholpaintings','Agnes Martin':'Agnes-Martin', 'Roy Lichtenstein':'roylichtenstein1','Keith Haring':'Keith-Haring'}
     valuestr = ''
     likes = []
+    interactions = []
+
     for i in range(0, len(dates)-1):
       # Aggregated Facebook location data, sorted by country, about the people who like your Page
       req = urllib2.Request("https://graph.facebook.com/" + fbartistmap[artist] + "/insights?since=1-" +dates[i]+ "&until=2-" +dates[i]+ "&access_token=1388859028003148|7ec5645154cf6a5ea978b5e710f784b0")
@@ -253,8 +257,24 @@ class ArtData:
       likes.append(int(totalfans_1-totalfans_0));
       #valuestr += str(totalfans_1-totalfans_0) + ', '
 
+    for i in range(0, len(dates)):
+      valuestr = ''
+      req = urllib2.Request("https://graph.facebook.com/"+ fbartistmap[artist] +"/insights/page_storytellers_by_country/days_28?since=1-" +dates[i]+ "&until=2-" +dates[i]+ "&access_token=1388859028003148|7ec5645154cf6a5ea978b5e710f784b0")
+      response = urllib2.urlopen(req)
+
+      obj = json.loads(response.read())
+      dat = obj['data'][0]['values'][0]['value']
+
+      totalfans = 0
+
+      for key, value in dat.items():
+        totalfans += value
+
+      interactions.append(int(totalfans))
+
+
     #print likes
-    return [dates, likes]
+    return [dates, likes, interactions]
 
 
       # data = connector.csv( section='Main' ).split('\n')
