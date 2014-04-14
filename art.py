@@ -45,13 +45,13 @@ class ArtData:
               '$set': { 'artnet': artnetr}
            }
         )
-      if not artist.get("fbx"):
+      if artist.get("fbx"):
         collection.update({'name': artistname},
            {
               '$set': { 'fbx': fb[0], 'fby': fb[1], 'fby2': fb[2]}
            }
         )
-      if not artist.get("aucx"):
+      if artist.get("aucx"):
         collection.update({'name': artistname},
            {
               '$set': { 'aucx': auc[0], 'auclow': auc[1], 'auchigh': auc[2], 'aucfinal': auc[3]}
@@ -215,9 +215,9 @@ class ArtData:
     datedoms = soup.find_all("span", class_="font10")
     for i in range(1, len(datedoms), 2):
       if datedoms[i].text.find("Sold:") != -1:
-        dates.append(datedoms[i].text[6:])
+        dates.append((datedoms[i].text[6:]).encode('ascii'))
 
-    #print dates
+    print dates
 
     for i in range(0, len(links)):
       response = urllib2.urlopen(baseurl+links[i])
@@ -238,7 +238,7 @@ class ArtData:
     return [dates, low, high, final] 
 
   def facebook(self, artist):
-    dates = ['apr-13', 'may-13', 'jun-13', 'jul-13', 'aug-13', 'sep-13', 'oct-13', 'nov-13', 'dec-13', 'jan-14', 'feb-14', 'mar-14']
+    dates = ["apr-13", "may-13", "jun-13", "jul-13", "aug-13", "sep-13", "oct-13", "nov-13", "dec-13", "jan-14", "feb-14", "mar-14"]
     fbartistmap = {'Banksy':'banksy', 'Andy Warhol':'andywarholpaintings','Agnes Martin':'Agnes-Martin', 'Roy Lichtenstein':'roylichtenstein1','Keith Haring':'Keith-Haring'}
     valuestr = ''
     likes = []

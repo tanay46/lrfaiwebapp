@@ -277,10 +277,10 @@
       var gtrendsx = {{ gtrendsx |safe }}
       var wikix = {{ wikix | safe }}
       var artnet = {{ artnet | safe }}
-      var fbx = {{ fbx | safe }}
-      var fby = {{ fby | safe }}
+      var fbx = {{ fbx|tojson|safe }}
+      var fby = {{ fby|safe }}
       var fby2 = {{ fby2 | safe }}
-      var aucx = {{ aucx | safe }}
+      var aucx = {{ aucx|tojson|safe }}
       var auclow = {{ auclow | safe }}
       var auchigh = {{ auchigh | safe }}
       var aucfinal = {{ aucfinal | safe }}
