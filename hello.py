@@ -50,7 +50,7 @@ def get_artist_page(artist):
 			arrow = "glyphicon-minus" 
 		return render_template('dashboard.html', wikix = wikicats, wikiy = wikidata, name = name, gtrendsx = gtrendsx, gtrendsy = gtrendsy, artnet = artnet, arrow = arrow)
 	else:
-		return "We haven't added this artist yet. Coming soon!"
+		return render_template('comingsoon.html', name = artist)
 
 
 if __name__ == '__main__':
