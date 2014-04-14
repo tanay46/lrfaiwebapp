@@ -219,6 +219,7 @@ class ArtData:
     #print low
     #print high
     #print final
+    print "finished auction"
     return [dates, low, high, final] 
 
   def facebook(artist):
@@ -274,6 +275,7 @@ class ArtData:
 
 
     #print likes
+    print "finished fb"
     return [dates, likes, interactions]
 
 
