@@ -2,7 +2,7 @@ import urllib2
 from lxml import etree
 from bs4 import BeautifulSoup
 
-artistmap = {'Banksy':'banksy', 'Andy Warhol':'andy-warhol','Agnes Martin':'agnes-martin', 'Roy Lichtenstein':'roy-lichtenstein','Keith Haring':'keith-haring', 'Pablo Picasso':'pablo-picasso'}
+aucartistmap = {'Banksy':'banksy', 'Andy Warhol':'andy-warhol','Agnes Martin':'agnes-martin', 'Roy Lichtenstein':'roy-lichtenstein','Keith Haring':'keith-haring', 'Pablo Picasso':'pablo-picasso'}
 
 def auction(artist):
 	dates = []
@@ -10,7 +10,7 @@ def auction(artist):
 	high = []
 	final = []
 
-	baseurl = 'http://www.artnet.com/artists/' + artistmap[artist]
+	baseurl = 'http://www.artnet.com/artists/' + aucartistmap[artist]
 	response = urllib2.urlopen(baseurl+'/recent-auctions')
 	html_doc = response.read() 
 	soup = BeautifulSoup(html_doc)
