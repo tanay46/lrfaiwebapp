@@ -58,7 +58,7 @@ $(document).ready(function() {
                 }]
             },
             tooltip: {
-                valueSuffix: ' Rank in Month'
+                valueSuffix: ' Rank in Months'
             },
             legend: {
                 layout: 'vertical',
