@@ -7,7 +7,10 @@ import os
 import datetime
 import pymongo
 from pymongo import MongoClient
+import csv
 
+
+# use this file to put data into the mongo database
 class ArtData:
 
   def __init__(self):
@@ -24,27 +27,38 @@ class ArtData:
       self.makeartist(name)
 
   def makeartist(self, artistname):
-    wiki = self.wikipedia(artistname)
-    wikix = wiki[1]
-    wikiy = wiki[0]
-    instagram = self.instagram(artistname)
-    googletrends = self.googletrends(artistname)
-    gtrendsx = googletrends[0]
-    gtrendsy = googletrends[1]
-    nameclean = artistname.replace(" ", "").lower()
-    artist = {"name": artistname,
-              "nameclean" : nameclean,
-              "wikix" : wikix,
-              "wikiy" : wikiy,
-              "instagram" : instagram,
-              "googlex" : gtrendsx,
-              "googley" : gtrendsy
-              }
     client = MongoClient(self.MONGOHQ_URL)
     db = client.artists
     collection = db.artists
-    artist_id = collection.insert(artist)
-    print artist_id
+    artnetr = self.getArtnet(artistname)
+    artist = collection.find_one({"name": artistname})
+    if artist:
+      if not artist.get("artnet"):
+        collection.update({'name': artistname},
+           {
+              '$set': { 'artnet': artnetr}
+           }
+        )
+    else:
+      wiki = self.wikipedia(artistname)
+      wikix = wiki[1]
+      wikiy = wiki[0]
+      instagram = self.instagram(artistname)
+      googletrends = self.googletrends(artistname)
+      gtrendsx = googletrends[0]
+      gtrendsy = googletrends[1]
+      nameclean = artistname.replace(" ", "").lower()
+      artist = {"name": artistname,
+                "nameclean" : nameclean,
+                "wikix" : wikix,
+                "wikiy" : wikiy,
+                "instagram" : instagram,
+                "googlex" : gtrendsx,
+                "googley" : gtrendsy,
+                "artnet" : artnetr
+                }
+      artist_id = collection.insert(artist)
+      print artist_id
 
 
   def wikipedia(self, artistname):
@@ -96,6 +110,18 @@ class ArtData:
       number = x['data']['media_count']
       print "finished insta"
       return number
+
+  def getArtnet(self, artistname):
+    rankings = open("artnet.csv", 'rU')
+    x = rankings.readlines()
+    for line in x:
+      ld = line.split(",")
+      if ld[0] == artistname:
+        ld[-1] = ld[-1].strip()
+        ld = [ int(x) for x in ld[1:] ]
+        print ld
+        return ld
+    print "oops"
 
   def getGTData(self, search_query = "debt", date="all", geo="all", scale="1", position = "end" ):
     print search_query
@@ -183,5 +209,6 @@ class ArtData:
 
 x = ArtData()
 x.start()
+# x.getArtnet("Banksy")
 # x.makeartist()
 

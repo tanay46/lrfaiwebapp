@@ -36,6 +36,41 @@ $(document).ready(function() {
                 data: wikiy
             },]
         });
+        $('#artnet').highcharts({
+            title: {
+                text: 'Artnet Ranking',
+                x: -20 //center
+            },
+            xAxis: {
+                title: {
+                    text: 'Month'
+                },
+                categories: ["October", "November", "December", "January", "February", "March"]
+            },
+            yAxis: {
+                title: {
+                    text: 'Ranking'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                valueSuffix: ' Rank in Month'
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle',
+                borderWidth: 0
+            },
+            series: [{
+                name: 'Ranking',
+                data: artnet
+            },]
+        });
         $('#google').highcharts({
             title: {
                 text: 'Google Popularity',
