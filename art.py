@@ -34,12 +34,27 @@ class ArtData:
     db = client.artists
     collection = db.artists
     artnetr = self.getArtnet(artistname)
+    fb = self.facebook(artistname)
+    auc = self.auction(artistname)
+
     artist = collection.find_one({"name": artistname})
     if artist:
       if not artist.get("artnet"):
         collection.update({'name': artistname},
            {
               '$set': { 'artnet': artnetr}
+           }
+        )
+      if not artist.get("fbx"):
+        collection.update({'name': artistname},
+           {
+              '$set': { 'fbx': fb[0], 'fby': fb[1], 'fby2': fb[2]}
+           }
+        )
+      if not artist.get("aucx"):
+        collection.update({'name': artistname},
+           {
+              '$set': { 'aucx': auc[0], 'auclow': auc[1], 'auchigh': auc[2], 'aucfinal': auc[3]}
            }
         )
     else:
@@ -181,7 +196,7 @@ class ArtData:
     print dict
     return [endlist[-52:], countlist[-52:]]
 
-  def auction(artist):
+  def auction(self, artist):
     aucartistmap = {'Banksy':'banksy', 'Andy Warhol':'andy-warhol','Agnes Martin':'agnes-martin', 'Roy Lichtenstein':'roy-lichtenstein','Keith Haring':'keith-haring', 'Pablo Picasso':'pablo-picasso'}
     dates = []
     low = []
@@ -222,7 +237,7 @@ class ArtData:
     print "finished auction"
     return [dates, low, high, final] 
 
-  def facebook(artist):
+  def facebook(self, artist):
     dates = ['apr-13', 'may-13', 'jun-13', 'jul-13', 'aug-13', 'sep-13', 'oct-13', 'nov-13', 'dec-13', 'jan-14', 'feb-14', 'mar-14']
     fbartistmap = {'Banksy':'banksy', 'Andy Warhol':'andywarholpaintings','Agnes Martin':'Agnes-Martin', 'Roy Lichtenstein':'roylichtenstein1','Keith Haring':'Keith-Haring'}
     valuestr = ''
@@ -231,32 +246,33 @@ class ArtData:
 
     for i in range(0, len(dates)-1):
       # Aggregated Facebook location data, sorted by country, about the people who like your Page
-      req = urllib2.Request("https://graph.facebook.com/" + fbartistmap[artist] + "/insights?since=1-" +dates[i]+ "&until=2-" +dates[i]+ "&access_token=1388859028003148|7ec5645154cf6a5ea978b5e710f784b0")
-      response = urllib2.urlopen(req)
+      #req = urllib2.Request("https://graph.facebook.com/" + fbartistmap[artist] + "/insights?since=1-" +dates[i]+ "&until=2-" +dates[i]+ "&access_token=1388859028003148|7ec5645154cf6a5ea978b5e710f784b0")
+      #response = urllib2.urlopen(req)
+
+      req = "https://graph.facebook.com/" + fbartistmap[artist] + "/insights?since=1-" +dates[i]+ "&until=2-" +dates[i]+ "&access_token=1388859028003148|7ec5645154cf6a5ea978b5e710f784b0"
+      response = urllib.urlopen(req)
 
       obj = json.loads(response.read())
-      dat = obj['data'][0]['values'][0]['value']
-
-      totalfans_0 = 0
-
-      for key, value in dat.items():
-        totalfans_0 += value
-
-      print totalfans_0
-
-      req = urllib2.Request("https://graph.facebook.com/" + fbartistmap[artist] + "/insights?since=1-" +dates[i+1]+ "&until=2-" +dates[i+1]+ "&access_token=1388859028003148|7ec5645154cf6a5ea978b5e710f784b0")
-      response = urllib2.urlopen(req)
-
-      obj = json.loads(response.read())
-      dat = obj['data'][0]['values'][0]['value']
-
-      totalfans_1 = 0
-
-      for key, value in dat.items():
-        totalfans_1 += value
-
-      likes.append(int(totalfans_1-totalfans_0));
-      #valuestr += str(totalfans_1-totalfans_0) + ', '
+      
+      if obj['data'] and obj['data'][0] and obj['data'][0]['values'] and obj['data'][0]['values'][0] and obj['data'][0]['values'][0]['value']:
+        dat = obj['data'][0]['values'][0]['value'] 
+        totalfans_0 = 0
+        for key, value in dat.items():
+          totalfans_0 += value
+        
+        req = urllib2.Request("https://graph.facebook.com/" + fbartistmap[artist] + "/insights?since=1-" +dates[i+1]+ "&until=2-" +dates[i+1]+ "&access_token=1388859028003148|7ec5645154cf6a5ea978b5e710f784b0")
+        response = urllib2.urlopen(req)
+        obj = json.loads(response.read())
+        if obj['data'] and obj['data'][0] and obj['data'][0]['values'] and obj['data'][0]['values'][0] and obj['data'][0]['values'][0]['value']:
+          dat = obj['data'][0]['values'][0]['value']
+          totalfans_1 = 0
+          for key, value in dat.items():
+            totalfans_1 += value
+          likes.append(int(totalfans_1-totalfans_0))
+        else:
+          likes.append(None)
+      else:
+          likes.append(None)
 
     for i in range(0, len(dates)):
       valuestr = ''
@@ -264,17 +280,16 @@ class ArtData:
       response = urllib2.urlopen(req)
 
       obj = json.loads(response.read())
-      dat = obj['data'][0]['values'][0]['value']
+      if obj['data'] and obj['data'][0] and obj['data'][0]['values'] and obj['data'][0]['values'][0] and obj['data'][0]['values'][0]['value']:
+        dat = obj['data'][0]['values'][0]['value']
+        totalfans = 0
+        if dat:
+          for key, value in dat.items():
+            totalfans += value
+          interactions.append(int(totalfans))
+      else:
+        likes.append(None)      
 
-      totalfans = 0
-
-      for key, value in dat.items():
-        totalfans += value
-
-      interactions.append(int(totalfans))
-
-
-    #print likes
     print "finished fb"
     return [dates, likes, interactions]
 
