@@ -42,12 +42,12 @@
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="#">Dashboard</a></li>
-            <li><a data-toggle="modal" data-target="#myModal">Settings</a></li>
-            <li><a data-toggle="modal" data-target="#myModal">Profile</a></li>
+            <li><a href="../dashboard">Dashboard</a></li>
+<!--             <li><a data-toggle="modal" data-target="#myModal">Settings</a></li>
+ -->            <li><a data-toggle="modal" data-target="#myModal">Profile</a></li>
           </ul>
           <form class="navbar-form navbar-right">
-            <input type="text" class="form-control" placeholder="Search...">
+            <input type="text" class="form-control" placeholder="Search... (Coming soon)">
           </form>
         </div>
       </div>
@@ -57,10 +57,10 @@
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
-            <li class="active"><a href="#">Overview</a></li>
-            <li><a data-toggle="modal" data-target="#myModal">Reports</a></li>
+            <li class="active"><a href="#">Report</a></li>
+<!--             <li><a data-toggle="modal" data-target="#myModal">Reports</a></li>
             <li><a data-toggle="modal" data-target="#myModal">Analytics</a></li>
-            <li><a data-toggle="modal" data-target="#myModal">Export</a></li>
+ -->            <li><a id="export">Export</a></li>
 <!--           </ul>
           <ul class="nav nav-sidebar">
             <li><a href="">Nav item</a></li>
@@ -75,7 +75,7 @@
             <li><a href="">Another nav item</a></li>
           </ul>
  -->        </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" id="information">
           {% if name %}
             <h1>{{ name }}</h1>
           {% endif %}
@@ -102,7 +102,7 @@
               <span class="text-muted">Something else</span>
             </div>
           </div>
- -->
+ -->      
           <h2 class="sub-header">Recent Auctions</h2>
           <div id ="auction">
           </div><br>
@@ -296,6 +296,7 @@
       var auclow = {{ auclow | safe }}
       var auchigh = {{ auchigh | safe }}
       var aucfinal = {{ aucfinal | safe }}
+
     </script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     <script src="http://code.highcharts.com/stock/highstock.js"></script>

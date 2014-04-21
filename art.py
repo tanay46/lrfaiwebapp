@@ -26,7 +26,7 @@ class ArtData:
       line = line.strip()
       listofart.append(line)
     print listofart
-    for name in listofart[0:5]:
+    for name in listofart[5:25]:
       self.makeartist(name)
 
   def makeartist(self, artistname):
@@ -45,13 +45,13 @@ class ArtData:
               '$set': { 'artnet': artnetr}
            }
         )
-      if artist.get("fbx"):
+      if not artist.get("fbx"):
         collection.update({'name': artistname},
            {
               '$set': { 'fbx': fb[0], 'fby': fb[1], 'fby2': fb[2]}
            }
         )
-      if artist.get("aucx"):
+      if not artist.get("aucx"):
         collection.update({'name': artistname},
            {
               '$set': { 'aucx': auc[0], 'auclow': auc[1], 'auchigh': auc[2], 'aucfinal': auc[3]}

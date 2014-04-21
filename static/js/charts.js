@@ -2,6 +2,7 @@ $(document).ready(function() {
 
         // console.log(wikix);
         console.log(wikiy);
+
         $('#wikipedia').highcharts({
             title: {
                 text: 'Number of Wikipedia pageviews per month',
@@ -182,26 +183,84 @@ $(document).ready(function() {
 
 });
 
-var p = calculateAuctionStats();
-var rounded_p = (p).toFixed(2);
 
-$('#trend-percent').html(rounded_p);
+        var p = calculateAuctionStats();
+        var rounded_p = (p).toFixed(2);
+
+        $('#trend-percent').html(rounded_p);
 
 
-var ex_sale_price;
-if (p < 0){
-    $('#auction-trend').html("On average, recent auctions have sold " + rounded_p + "% of the price range <font color='red'>below</font> the high estimate.");
-    ex_sale_price = 1100 - parseFloat(rounded_p);
-    $('#trend-percent').css("color", "red");
-} else {
-    $('#auction-trend').html("On average, recent auctions have sold " + rounded_p + "% of the price range <font color='green'>above</font> the high estimate.");
-    ex_sale_price = 1100 + parseFloat(rounded_p);    
-    $('#trend-percent').css("color", "green");
-    }
-$('#trend-tooltip').attr("title", "E.g. a piece with a predicted sale price range of $1000 to $1100 would have sold for $" + ex_sale_price);
-$("#trend-tooltip").tooltip();
-    
+        var ex_sale_price;
+        if (p < 0){
+            $('#auction-trend').html("On average, recent auctions have sold " + rounded_p + "% of the price range <font color='red'>below</font> the high estimate.");
+            ex_sale_price = 1100 - parseFloat(rounded_p);
+            $('#trend-percent').css("color", "red");
+        } else {
+            $('#auction-trend').html("On average, recent auctions have sold " + rounded_p + "% of the price range <font color='green'>above</font> the high estimate.");
+            ex_sale_price = 1100 + parseFloat(rounded_p);    
+            $('#trend-percent').css("color", "green");
+            }
+        $('#trend-tooltip').attr("title", "E.g. a piece with a predicted sale price range of $1000 to $1100 would have sold for $" + ex_sale_price);
+        $("#trend-tooltip").tooltip();
+            
+
+        $("#export").click(function () {
+            var wikipedia = $('#wikipedia').highcharts();
+            var fb = $('#fb').highcharts();
+            var google = $('#google').highcharts();
+            var artnet = $('#artnet').highcharts();
+            var auction = $('#auction').highcharts();
+            printCharts([wikipedia, artnet, fb, google, auction]);
+        });
+
+        
+
     });
+
+function printCharts(charts) {
+
+            var origDisplay = [],
+                origParent = [],
+                body = document.body,
+                childNodes = body.childNodes;
+
+            // hide all body content
+            var x = document.getElementsByTagName("h1")[0]
+            Highcharts.each(childNodes, function (node, i) {
+                if (node.nodeType === 1) {
+                    origDisplay[i] = node.style.display;
+                    node.style.display = "none";
+                }
+            });
+
+            body.appendChild(x);
+            console.log("HI");
+
+            // put the charts back in
+            $.each(charts, function (i, chart) {
+                origParent[i] = chart.container.parentNode;
+                body.appendChild(chart.container);
+            });
+
+            // print
+            window.print();
+
+            // allow the browser to prepare before reverting
+            setTimeout(function () {
+                // put the chart back in
+                $.each(charts, function (i, chart) {
+                    origParent[i].appendChild(chart.container);
+                });
+
+                // restore all body content
+                Highcharts.each(childNodes, function (node, i) {
+                    if (node.nodeType === 1) {
+                        node.style.display = origDisplay[i];
+                    }
+                });
+            }, 500);
+        }
+
     
 function calculateAuctionStats(){
     if (aucx.length < 1){
