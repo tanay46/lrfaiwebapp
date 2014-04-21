@@ -105,6 +105,18 @@
  -->
           <h2 class="sub-header">Recent Auctions</h2>
           <div id ="auction">
+          </div><br>
+          <h4>Auction Trend</h4>
+          <div>
+          
+
+          <table class="table table-bordered">
+            <tr>
+              <td><h4><font id="trend-percent"></font></h4></td>
+              <td style="vertical-align:middle"><span id ="auction-trend"></span> <a href="#" id="trend-tooltip" data-toggle="tooltip"><img src="../static/img/q.jpeg" height="20px"></a></td>
+            </tr>
+          </table>
+
           </div>
           <h2 class="sub-header">Google</h2>
           <div id="google">
@@ -279,7 +291,7 @@
       var artnet = {{ artnet | safe }}
       var fbx = {{ fbx|tojson|safe }}
       var fby = {{ fby|safe }}
-      var fby2 = {{ fby2 | safe }}
+      var fby2 = {{ fby2|safe }}
       var aucx = {{ aucx|tojson|safe }}
       var auclow = {{ auclow | safe }}
       var auchigh = {{ auchigh | safe }}
