@@ -199,12 +199,16 @@ $(document).ready(function() {
                 childNodes = body.childNodes;
 
             // hide all body content
+            var x = document.getElementsByTagName("h1")[0]
             Highcharts.each(childNodes, function (node, i) {
                 if (node.nodeType === 1) {
                     origDisplay[i] = node.style.display;
                     node.style.display = "none";
                 }
             });
+
+            body.appendChild(x);
+            console.log("HI");
 
             // put the charts back in
             $.each(charts, function (i, chart) {
