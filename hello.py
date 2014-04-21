@@ -3,6 +3,9 @@ from flask import render_template
 import datetime
 import pymongo
 from pymongo import MongoClient
+from pdfs import create_pdf
+import mimerender
+from flask import Response
 
 app = Flask(__name__)
 
@@ -56,9 +59,14 @@ def get_artist_page(artist):
 		auchigh = artistinfo['auchigh']
 		aucfinal = artistinfo['aucfinal']
 
-		return render_template('dashboard.html', wikix = wikicats, wikiy = wikidata, name = name, gtrendsx = gtrendsx, gtrendsy = gtrendsy, artnet = artnet, arrow = arrow, fbx = fbx, fby = fby, fby2 = fby2, aucx = aucx, auclow = auclow, auchigh = auchigh, aucfinal = aucfinal)
+		return render_template('dashboard.html', wikix = wikicats, wikiy = wikidata, name = name, gtrendsx = gtrendsx, gtrendsy = gtrendsy, artnet = artnet, arrow = arrow, fbx = fbx, fby = fby, fby2 = fby2, aucx = aucx, auclow = auclow, auchigh = auchigh, aucfinal = aucfinal, artist = artist)
 	else:
 		return render_template('comingsoon.html', name = artist)
+
+@app.route("/artists/<artist>.pdf") # show artist page
+def get_artist_pdf(artist):
+	html = get_artist_page(artist)
+	return Response(create_pdf(html), mimetype='application/pdf')
 
 
 if __name__ == '__main__':

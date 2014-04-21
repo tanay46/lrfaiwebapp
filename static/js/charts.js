@@ -1,6 +1,7 @@
 $(document).ready(function() {
         // console.log(wikix);
         console.log(wikiy);
+
         $('#wikipedia').highcharts({
             title: {
                 text: 'Number of Wikipedia pageviews per month',
@@ -180,6 +181,55 @@ $(document).ready(function() {
             }]
 
 });
+
+        $("#export").click(function () {
+            var wikipedia = $('#wikipedia').highcharts();
+            var fb = $('#fb').highcharts();
+            var google = $('#google').highcharts();
+            var artnet = $('#artnet').highcharts();
+            var auction = $('#auction').highcharts();
+            printCharts([wikipedia, artnet, fb, google, auction]);
+        });
+
+        function printCharts(charts) {
+
+            var origDisplay = [],
+                origParent = [],
+                body = document.body,
+                childNodes = body.childNodes;
+
+            // hide all body content
+            Highcharts.each(childNodes, function (node, i) {
+                if (node.nodeType === 1) {
+                    origDisplay[i] = node.style.display;
+                    node.style.display = "none";
+                }
+            });
+
+            // put the charts back in
+            $.each(charts, function (i, chart) {
+                origParent[i] = chart.container.parentNode;
+                body.appendChild(chart.container);
+            });
+
+            // print
+            window.print();
+
+            // allow the browser to prepare before reverting
+            setTimeout(function () {
+                // put the chart back in
+                $.each(charts, function (i, chart) {
+                    origParent[i].appendChild(chart.container);
+                });
+
+                // restore all body content
+                Highcharts.each(childNodes, function (node, i) {
+                    if (node.nodeType === 1) {
+                        node.style.display = origDisplay[i];
+                    }
+                });
+            }, 500);
+        }
 
  
     });
