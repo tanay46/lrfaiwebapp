@@ -2,7 +2,6 @@ $(document).ready(function() {
 
         // console.log(wikix);
         console.log(wikiy);
-
         $('#wikipedia').highcharts({
             title: {
                 text: 'Number of Wikipedia pageviews per month',
@@ -205,12 +204,24 @@ $(document).ready(function() {
             
 
         $("#export").click(function () {
+            var chartlist = []
             var wikipedia = $('#wikipedia').highcharts();
-            var fb = $('#fb').highcharts();
+            chartlist.push(wikipedia);
+            if (fbx) {
+                var fb = $('#fb').highcharts();
+                chartlist.push(fb);
+            }
             var google = $('#google').highcharts();
-            var artnet = $('#artnet').highcharts();
-            var auction = $('#auction').highcharts();
-            printCharts([wikipedia, artnet, fb, google, auction]);
+            chartlist.push(google);
+            if (artnet) {
+                var artnet = $('#artnet').highcharts();
+                chartlist.push(artnet);
+            }
+            if (aucx) {
+                var auction = $('#auction').highcharts();
+                chartlist.push(auction);
+            }
+            printCharts(chartlist);
         });
 
         
@@ -263,7 +274,7 @@ function printCharts(charts) {
 
     
 function calculateAuctionStats(){
-    if (aucx.length < 1){
+    if (!aucx || aucx && aucx.length < 1){
         return 0;
     }
     var totalpercent = 0;

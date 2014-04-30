@@ -57,6 +57,24 @@ class ArtData:
               '$set': { 'aucx': auc[0], 'auclow': auc[1], 'auchigh': auc[2], 'aucfinal': auc[3]}
            }
         )
+      if not artist.get("wikix"):
+        wiki = self.wikipedia(artistname)
+        wikix = wiki[1]
+        wikiy = wiki[0]
+        collection.update({'name': artistname},
+           {
+              '$set': { 'wikix': wikix, 'wikiy': wikiy}
+           }
+        )
+      if not artist.get("googlex"):
+        googletrends = self.googletrends(artistname)
+        gtrendsx = googletrends[0]
+        gtrendsy = googletrends[1]
+        collection.update({'name': artistname},
+           {
+              '$set': { 'googlex': gtrendsx, 'googley': gtrendsy}
+           }
+        )
     else:
       wiki = self.wikipedia(artistname)
       wikix = wiki[1]
@@ -139,11 +157,18 @@ class ArtData:
     url = "https://api.instagram.com/v1/tags/"+ namenospace + "?client_id=" + clientid
     f = urllib.urlopen(url)
     s = f.read()
-    x = json.loads(s)
+    try:
+      x = json.loads(s)
+    except:
+      return 0
+    else:
+      return 0
     if x['meta']['code'] == 200:
       number = x['data']['media_count']
       print "finished insta"
       return number
+    else:
+      return 0
 
   def getArtnet(self, artistname):
     rankings = open("artnet.csv", 'rU')
@@ -162,7 +187,7 @@ class ArtData:
     dict = {}
     endlist = []
     countlist = []
-    connector = pyGTrends( "larotondeapi", "dstegroup1")
+    connector = pyGTrends( "larotondeapi", "dstegroup11")
     connector.download_report( ( search_query ) 
            , date = date
                              , geo = geo
