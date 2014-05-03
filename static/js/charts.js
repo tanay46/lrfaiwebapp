@@ -182,7 +182,7 @@ $(document).ready(function() {
 
 });
 
-        if(typeof auclow != 'undefined' || auclow.length == 0){
+        if(typeof auclow != 'undefined' && auclow.length > 0){
             $('#no-auction-data').hide();
 
             var p = calculateAuctionStats();
