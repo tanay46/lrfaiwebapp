@@ -104,25 +104,32 @@
           </div>
  -->      
           <h2 class="sub-header">Recent Auctions</h2>
-          <div id ="auction">
-          </div><br>
-          <h4>Auction Trend</h4>
-          <div>
-          
-
-          <table class="table table-bordered">
-            <tr>
-              <td><h4><font id="trend-percent"></font></h4></td>
-              <td style="vertical-align:middle"><span id ="auction-trend"></span> <a href="#" id="trend-tooltip" data-toggle="tooltip"><img src="../static/img/q.jpeg" height="20px"></a></td>
-            </tr>
-          </table>
-
+          <div id="auction-container">
+            <div id ="auction">
+            </div><br>
+            <h4>Auction Trend</h4>
+            <div>
+            <table class="table table-bordered">
+              <tr>
+                <td><h4><font id="trend-percent"></font></h4></td>
+                <td style="vertical-align:middle"><span id ="auction-trend"></span> <a href="#" id="trend-tooltip" data-toggle="tooltip"><img src="../static/img/q.jpeg" height="20px"></a></td>
+              </tr>
+            </table>
+            </div>
+          </div>
+          <div id="no-auction-data">
+            No auction data to show.
           </div>
           <h2 class="sub-header">Google</h2>
           <div id="google">
           </div>
           <h2 class="sub-header">Facebook</h2>
-          <div id ="fb">
+          <div id="fb-container">
+            <div id ="fb">
+            </div>
+          </div>
+          <div id="no-fb-data">
+            No Facebook data to show.
           </div>
           <h2 class="sub-header">Wikipedia</h2>
           <div id="wikipedia">
@@ -290,7 +297,7 @@
       var wikix = {{ wikix | safe }}
       var artnet = {{ artnet | safe }}
       var fbx = {{ fbx|tojson|safe }}
-      var fby = {{ fby|safe }}
+      var fby = {{ fby|tojson|safe }}
       var fby2 = {{ fby2|safe }}
       var aucx = {{ aucx|tojson|safe }}
       var auclow = {{ auclow | safe }}
