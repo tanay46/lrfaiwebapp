@@ -102,7 +102,7 @@
               <span class="text-muted">Something else</span>
             </div>
           </div>
- -->      
+ -->      {% if aucx %}
           <h2 class="sub-header">Recent Auctions</h2>
           <div id="auction-container">
             <div id ="auction">
@@ -120,9 +120,13 @@
           <div id="no-auction-data">
             No auction data to show.
           </div>
+          {% endif %}
+          {% if gtrendsx %}
           <h2 class="sub-header">Google</h2>
           <div id="google">
           </div>
+          {% endif %}
+          {% if fbx %}
           <h2 class="sub-header">Facebook</h2>
           <div id="fb-container">
             <div id ="fb">
@@ -131,13 +135,17 @@
           <div id="no-fb-data">
             No Facebook data to show.
           </div>
+          {% endif %}
+          {% if wikix %}
           <h2 class="sub-header">Wikipedia</h2>
           <div id="wikipedia">
           </div>
+          {% endif %}
+          {% if artnet %}
           <h2 class="sub-header">Artnet Ranking <i class="glyphicon {{arrow}}"></i></h2>
           <div id="artnet">
           <h3>{{ artnet[0] }}</h3>
-              
+          {% endif %}
           </div>
 
 
@@ -298,11 +306,11 @@
       var artnet = {{ artnet | safe }}
       var fbx = {{ fbx|tojson|safe }}
       var fby = {{ fby|tojson|safe }}
-      var fby2 = {{ fby2|safe }}
+      var fby2 = {{ fby2|tojson|safe }}
       var aucx = {{ aucx|tojson|safe }}
-      var auclow = {{ auclow | safe }}
-      var auchigh = {{ auchigh | safe }}
-      var aucfinal = {{ aucfinal | safe }}
+      var auclow = {{ auclow |tojson| safe }}
+      var auchigh = {{ auchigh |tojson| safe }}
+      var aucfinal = {{ aucfinal |tojson| safe }}
 
     </script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>

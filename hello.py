@@ -49,13 +49,13 @@ def get_artist_page(artist):
 			arrow = "glyphicon-arrow-up"
 		elif previousrank == currentrank:
 			arrow = "glyphicon-minus" 
-		fbx = artistinfo['fbx']
-		fby = artistinfo['fby']
-		fby2 = artistinfo['fby2']
-		aucx = artistinfo['aucx']
-		auclow = artistinfo['auclow']
-		auchigh = artistinfo['auchigh']
-		aucfinal = artistinfo['aucfinal']
+		fbx = artistinfo.get('fbx')
+		fby = artistinfo.get('fby')
+		fby2 = artistinfo.get('fby2')
+		aucx = artistinfo.get('aucx')
+		auclow = artistinfo.get('auclow')
+		auchigh = artistinfo.get('auchigh')
+		aucfinal = artistinfo.get('aucfinal')
 
 		return render_template('dashboard.html', wikix = wikicats, wikiy = wikidata, name = name, gtrendsx = gtrendsx, gtrendsy = gtrendsy, artnet = artnet, arrow = arrow, fbx = fbx, fby = fby, fby2 = fby2, aucx = aucx, auclow = auclow, auchigh = auchigh, aucfinal = aucfinal, artist = artist)
 	else:
