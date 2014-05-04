@@ -182,26 +182,38 @@ $(document).ready(function() {
 
 });
 
+        if(typeof auclow != 'undefined' && auclow.length > 0){
+            $('#no-auction-data').hide();
 
-        var p = calculateAuctionStats();
-        var rounded_p = (p).toFixed(2);
-
-        $('#trend-percent').html(rounded_p);
-
-
-        var ex_sale_price;
-        if (p < 0){
-            $('#auction-trend').html("On average, recent auctions have sold " + rounded_p + "% of the price range <font color='red'>below</font> the high estimate.");
-            ex_sale_price = 1100 - parseFloat(rounded_p);
-            $('#trend-percent').css("color", "red");
-        } else {
-            $('#auction-trend').html("On average, recent auctions have sold " + rounded_p + "% of the price range <font color='green'>above</font> the high estimate.");
-            ex_sale_price = 1100 + parseFloat(rounded_p);    
-            $('#trend-percent').css("color", "green");
-            }
-        $('#trend-tooltip').attr("title", "E.g. a piece with a predicted sale price range of $1000 to $1100 would have sold for $" + ex_sale_price);
-        $("#trend-tooltip").tooltip();
+            var p = calculateAuctionStats();
+            var rounded_p = (p).toFixed(2);
+            $('#trend-percent').html(rounded_p);
+            var ex_sale_price;
+            if (p < 0){
+                $('#auction-trend').html("On average, recent auctions have sold " + rounded_p + "% of the price range <font color='red'>below</font> the high estimate.");
+                ex_sale_price = 1100 - parseFloat(rounded_p);
+                $('#trend-percent').css("color", "red");
+            } else {
+                $('#auction-trend').html("On average, recent auctions have sold " + rounded_p + "% of the price range <font color='green'>above</font> the high estimate.");
+                ex_sale_price = 1100 + parseFloat(rounded_p);    
+                $('#trend-percent').css("color", "green");
+                }
+            $('#trend-tooltip').attr("title", "E.g. a piece with a predicted sale price range of $1000 to $1100 would have sold for $" + ex_sale_price);
+            $("#trend-tooltip").tooltip();
+        }
+        else {
+            $('#auction-container').hide();
+            $('#no-auction-data').show();
+        }
+        
+        if(typeof fby2 == 'undefined' || fby2.length == 0){
+            $('#fb-container').hide();
+            $('#no-fb-data').show();
             
+        }
+        else {
+            $('#no-fb-data').hide();
+        }            
 
         $("#export").click(function () {
             var chartlist = []
@@ -223,54 +235,50 @@ $(document).ready(function() {
             }
             printCharts(chartlist);
         });
-
-        
-
     });
 
 function printCharts(charts) {
+    var origDisplay = [],
+        origParent = [],
+        body = document.body,
+        childNodes = body.childNodes;
 
-            var origDisplay = [],
-                origParent = [],
-                body = document.body,
-                childNodes = body.childNodes;
-
-            // hide all body content
-            var x = document.getElementsByTagName("h1")[0]
-            Highcharts.each(childNodes, function (node, i) {
-                if (node.nodeType === 1) {
-                    origDisplay[i] = node.style.display;
-                    node.style.display = "none";
-                }
-            });
-
-            body.appendChild(x);
-            console.log("HI");
-
-            // put the charts back in
-            $.each(charts, function (i, chart) {
-                origParent[i] = chart.container.parentNode;
-                body.appendChild(chart.container);
-            });
-
-            // print
-            window.print();
-
-            // allow the browser to prepare before reverting
-            setTimeout(function () {
-                // put the chart back in
-                $.each(charts, function (i, chart) {
-                    origParent[i].appendChild(chart.container);
-                });
-
-                // restore all body content
-                Highcharts.each(childNodes, function (node, i) {
-                    if (node.nodeType === 1) {
-                        node.style.display = origDisplay[i];
-                    }
-                });
-            }, 500);
+    // hide all body content
+    var x = document.getElementsByTagName("h1")[0]
+    Highcharts.each(childNodes, function (node, i) {
+        if (node.nodeType === 1) {
+            origDisplay[i] = node.style.display;
+            node.style.display = "none";
         }
+    });
+
+    body.appendChild(x);
+    console.log("HI");
+
+    // put the charts back in
+    $.each(charts, function (i, chart) {
+        origParent[i] = chart.container.parentNode;
+        body.appendChild(chart.container);
+    });
+
+    // print
+    window.print();
+
+    // allow the browser to prepare before reverting
+    setTimeout(function () {
+        // put the chart back in
+        $.each(charts, function (i, chart) {
+            origParent[i].appendChild(chart.container);
+        });
+
+        // restore all body content
+        Highcharts.each(childNodes, function (node, i) {
+            if (node.nodeType === 1) {
+                node.style.display = origDisplay[i];
+            }
+        });
+    }, 500);
+}
 
     
 function calculateAuctionStats(){
