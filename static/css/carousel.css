@@ -51,10 +51,10 @@ body {
 
 }
 
-.carousel-caption .highlight {
+/*.carousel-caption .highlight {
   background: rgba(69, 139, 202, .4);
 }
-
+*/
 /* Declare heights because of positioning of img element */
 .carousel .item {
   height: 500px;
