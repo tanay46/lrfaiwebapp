@@ -46,8 +46,11 @@
 <!--             <li><a data-toggle="modal" data-target="#myModal">Settings</a></li>
  -->            <li><a data-toggle="modal" data-target="#myModal">Profile</a></li>
           </ul>
-          <form class="navbar-form navbar-right">
-            <input type="text" class="form-control" placeholder="Search... (Coming soon)">
+          <form class="navbar-form navbar-right" id="search" role="search">
+              <div class="form-group">
+                  <input type="text" class="form-control" id="searchtext" placeholder="Search" style="border-bottom-right-radius:0px; border-top-right-radius:0px">
+              </div>
+              <button type="submit" id="searchsubmit" class="btn btn-default" style="margin-left:-4px; border-top-left-radius:0px; border-bottom-left-radius:0px"><span class="glyphicon glyphicon-search"></span></button>
           </form>
         </div>
       </div>
@@ -102,8 +105,9 @@
               <span class="text-muted">Something else</span>
             </div>
           </div>
- -->      {% if true %}
+ -->      
           <h2 class="sub-header">Recent Auctions</h2>
+          {% if aucx %}
           <div id="auction-container">
             <div id ="auction">
             </div><br>
@@ -117,6 +121,7 @@
             </table>
             </div>
           </div>
+          {% else %}
           <div id="no-auction-data">
             No auction data to show.
           </div>
@@ -126,12 +131,13 @@
           <div id="google">
           </div>
           {% endif %}
-          {% if fbx %}
           <h2 class="sub-header">Facebook</h2>
+          {% if fbx %}
           <div id="fb-container">
             <div id ="fb">
             </div>
           </div>
+          {% else %}
           <div id="no-fb-data">
             No Facebook data to show.
           </div>
@@ -311,11 +317,20 @@
       var auclow = {{ auclow |tojson| safe }}
       var auchigh = {{ auchigh |tojson| safe }}
       var aucfinal = {{ aucfinal |tojson| safe }}
-
     </script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     <script src="http://code.highcharts.com/stock/highstock.js"></script>
     <script src="http://code.highcharts.com/stock/modules/exporting.js"></script>
+    <script>
+    $("#search").submit(function(event) {
+        var artist = $("#searchtext").val();
+        var artistclean = artist.toLowerCase().replace(/ /g, '');
+        console.log(artistclean);
+        event.preventDefault();
+        window.location.href='/artists/' + artistclean;
+      });
+    </script>
+
     <script src="http://code.highcharts.com/highcharts.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/fb.js"></script>

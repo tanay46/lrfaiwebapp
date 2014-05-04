@@ -9,7 +9,7 @@ import pymongo
 from pymongo import MongoClient
 import csv
 import urllib2
-from lxml import etree
+# from lxml import etree
 from bs4 import BeautifulSoup
 
 
@@ -45,18 +45,18 @@ class ArtData:
               '$set': { 'artnet': artnetr}
            }
         )
-      if 1:#not artist.get("fbx"):
-        collection.update({'name': artistname},
-           {
-              '$set': { 'fbx': fb[0], 'fby': fb[1], 'fby2': fb[2]}
-           }
-        )
-      if 1:#not artist.get("aucx"):
-        collection.update({'name': artistname},
-           {
-              '$set': { 'aucx': auc[0], 'auclow': auc[1], 'auchigh': auc[2], 'aucfinal': auc[3]}
-           }
-        )
+      # if not artist.get("fbx"):
+      #   collection.update({'name': artistname},
+      #      {
+      #         '$set': { 'fbx': fb[0], 'fby': fb[1], 'fby2': fb[2]}
+      #      }
+      #   )
+      # if not artist.get("aucx"):
+      #   collection.update({'name': artistname},
+      #      {
+      #         '$set': { 'aucx': auc[0], 'auclow': auc[1], 'auchigh': auc[2], 'aucfinal': auc[3]}
+      #      }
+      #   )
       if not artist.get("wikix"):
         wiki = self.wikipedia(artistname)
         wikix = wiki[1]
@@ -84,14 +84,14 @@ class ArtData:
       gtrendsx = googletrends[0]
       gtrendsy = googletrends[1]
       fb = self.facebook(artistname)
-      fbx = fb[0]
-      fby = fb[1]
-      fby2 = fb[2]
-      auc = self.auction(artistname)
-      aucx = auc[0]
-      auclow = auc[1]
-      auchigh = auc[2]
-      aucfinal = auc[3]
+      # fbx = fb[0]
+      # fby = fb[1]
+      # fby2 = fb[2]
+      # auc = self.auction(artistname)
+      # aucx = auc[0]
+      # auclow = auc[1]
+      # auchigh = auc[2]
+      # aucfinal = auc[3]
 
       nameclean = artistname.replace(" ", "").lower()
       artist = {"name": artistname,
@@ -222,111 +222,98 @@ class ArtData:
     return [endlist[-52:], countlist[-52:]]
 
   def auction(self, artist):
-    joan = 'joan-mir%%C3%%B3'
-    aucartistmap = {'Banksy':'banksy', 'Andy Warhol':'andy-warhol','Agnes Martin':'agnes-martin', 
-    'Roy Lichtenstein':'roy-lichtenstein','Keith Haring':'keith-haring', 'Marc Chagall':'marc-chagall',
-    'Carrie Mae Weems':'carrie+mae-weems','Karl Schmidt-Rottluff':'karl-schmidt-rottluff','Andreas Gursky':'andreas-gursky',
-    'Louise Lawler':'louise-lawler','Robert Mapplethorpe':'robert-mapplethorpe','Jean-Michel Basquiat':'jean-michel-basquiat',
-    'Alexander Calder':'alexander-calder','Pablo Picasso':'pablo-picasso','Joan Miro':joan,
-    'Michael Dweck':'michael-dweck','Victor Vasarely':'victor-vasarely','Maurice Utrillo':'maurice-utrillo',
-    'Damien Hirst':'damien-hirst'}
+    aucartistmap = {'Banksy':'banksy', 'Andy Warhol':'andy-warhol','Agnes Martin':'agnes-martin', 'Roy Lichtenstein':'roy-lichtenstein','Keith Haring':'keith-haring', 'Pablo Picasso':'pablo-picasso'}
+    dates = []
+    low = []
+    high = []
+    final = []
 
-    if artist in aucartistmap:
-      dates = []
-      low = []
-      high = []
-      final = []
+    baseurl = 'http://www.artnet.com/artists/' + aucartistmap[artist]
+    response = urllib2.urlopen(baseurl+'/recent-auctions')
+    html_doc = response.read() 
+    soup = BeautifulSoup(html_doc)
+    linkdoms = soup.find_all("a", class_="lnk9")
+    links = []
+    for i in xrange(0, len(linkdoms),2):
+      links.append(linkdoms[i]['href'])
 
-      baseurl = 'http://www.artnet.com/artists/' + aucartistmap[artist]
-      response = urllib2.urlopen(baseurl+'/recent-auctions')
+    datedoms = soup.find_all("span", class_="font10")
+    for i in range(1, len(datedoms), 2):
+      if datedoms[i].text.find("Sold:") != -1:
+        dates.append((datedoms[i].text[6:]).encode('ascii'))
+
+    print dates
+
+    for i in range(0, len(links)):
+      response = urllib2.urlopen(baseurl+links[i])
       html_doc = response.read() 
-      soup = BeautifulSoup(html_doc)
-      linkdoms = soup.find_all("a", class_="lnk9")
-      links = []
-      for i in xrange(0, len(linkdoms),2):
-        links.append(linkdoms[i]['href'])
+      soup = BeautifulSoup(html_doc, "lxml")
+      est = soup.find_all(id='lotInformation_tblCellEstimateText')
+      esttokens = est[0].text.split()
+      low.append(int(esttokens[0].replace(",", "")))
+      high.append(int(esttokens[2].replace(",", "")))
+      sold = soup.find_all(id='lotInformation_tblCellSoldForText')
+      soldtokens = sold[0].text.split()
+      final.append(int(soldtokens[0].replace(",", "")))
 
-      datedoms = soup.find_all("span", class_="font10")
-      for i in range(1, len(datedoms), 2):
-        if datedoms[i].text.find("Sold:") != -1:
-          dates.append((datedoms[i].text[6:]).encode('ascii'))
-
-      print dates
-
-      for i in range(0, len(links)):
-        response = urllib2.urlopen(baseurl+links[i])
-        html_doc = response.read() 
-        soup = BeautifulSoup(html_doc, "lxml")
-        est = soup.find_all(id='lotInformation_tblCellEstimateText')
-        esttokens = est[0].text.split()
-        low.append(int(esttokens[0].replace(",", "")))
-        high.append(int(esttokens[2].replace(",", "")))
-        sold = soup.find_all(id='lotInformation_tblCellSoldForText')
-        soldtokens = sold[0].text.split()
-        final.append(int(soldtokens[0].replace(",", "")))
-
+    #print low
+    #print high
+    #print final
     print "finished auction"
     return [dates, low, high, final] 
 
   def facebook(self, artist):
     dates = ["apr-13", "may-13", "jun-13", "jul-13", "aug-13", "sep-13", "oct-13", "nov-13", "dec-13", "jan-14", "feb-14", "mar-14"]
-    fbartistmap = {'Banksy':'banksy', 'Andy Warhol':'andywarholpaintings','Agnes Martin':'Agnes-Martin',
-     'Roy Lichtenstein':'roylichtenstein1','Keith Haring':'Keith-Haring', 'Marc Chagall':'Marc-Chagall',
-     'Carrie Mae Weems':'CarrieMaeWeems','Karl Schmidt-Rottluff':'Karl-Schmidt-Rottluff','Andreas Gursky':'Andreas-Gursky',
-     'Louise Lawler':'Louise-Lawler','Robert Mapplethorpe':'Robert-Mapplethorpe','Jean-Michel Basquiat':'mrjeanmichelbasquiat',
-     'Alexander Calder':'Alexander-Calder','Pablo Picasso':'Pablo-Picasso','Joan Miro':'Joan-Miro',
-     'Michael Dweck':'Michael-Dweck','Victor Vasarely':'Victor-Vasarely','Maurice Utrillo':'Maurice-Utrillo',
-     'Damien Hirst':'Damien-Hirst'}
+    fbartistmap = {'Banksy':'banksy', 'Andy Warhol':'andywarholpaintings','Agnes Martin':'Agnes-Martin', 'Roy Lichtenstein':'roylichtenstein1','Keith Haring':'Keith-Haring'}
     valuestr = ''
     likes = []
     interactions = []
 
-    if artist in fbartistmap:
-      for i in range(0, len(dates)-1):
-        # Aggregated Facebook location data, sorted by country, about the people who like your Page
-        #req = urllib2.Request("https://graph.facebook.com/" + fbartistmap[artist] + "/insights?since=1-" +dates[i]+ "&until=2-" +dates[i]+ "&access_token=1388859028003148|7ec5645154cf6a5ea978b5e710f784b0")
-        #response = urllib2.urlopen(req)
+    for i in range(0, len(dates)-1):
+      # Aggregated Facebook location data, sorted by country, about the people who like your Page
+      #req = urllib2.Request("https://graph.facebook.com/" + fbartistmap[artist] + "/insights?since=1-" +dates[i]+ "&until=2-" +dates[i]+ "&access_token=1388859028003148|7ec5645154cf6a5ea978b5e710f784b0")
+      #response = urllib2.urlopen(req)
 
-        req = "https://graph.facebook.com/" + fbartistmap[artist] + "/insights?since=1-" +dates[i]+ "&until=2-" +dates[i]+ "&access_token=1388859028003148|7ec5645154cf6a5ea978b5e710f784b0"
-        response = urllib.urlopen(req)
+      req = "https://graph.facebook.com/" + fbartistmap[artist] + "/insights?since=1-" +dates[i]+ "&until=2-" +dates[i]+ "&access_token=1388859028003148|7ec5645154cf6a5ea978b5e710f784b0"
+      response = urllib.urlopen(req)
 
-        obj = json.loads(response.read())
+      obj = json.loads(response.read())
+      
+      if obj['data'] and obj['data'][0] and obj['data'][0]['values'] and obj['data'][0]['values'][0] and obj['data'][0]['values'][0]['value']:
+        dat = obj['data'][0]['values'][0]['value'] 
+        totalfans_0 = 0
+        for key, value in dat.items():
+          totalfans_0 += value
         
-        if obj['data'] and obj['data'][0] and obj['data'][0]['values'] and obj['data'][0]['values'][0] and obj['data'][0]['values'][0]['value']:
-          dat = obj['data'][0]['values'][0]['value'] 
-          totalfans_0 = 0
-          for key, value in dat.items():
-            totalfans_0 += value
-          
-          req = urllib2.Request("https://graph.facebook.com/" + fbartistmap[artist] + "/insights?since=1-" +dates[i+1]+ "&until=2-" +dates[i+1]+ "&access_token=1388859028003148|7ec5645154cf6a5ea978b5e710f784b0")
-          response = urllib2.urlopen(req)
-          obj = json.loads(response.read())
-          if obj['data'] and obj['data'][0] and obj['data'][0]['values'] and obj['data'][0]['values'][0] and obj['data'][0]['values'][0]['value']:
-            dat = obj['data'][0]['values'][0]['value']
-            totalfans_1 = 0
-            for key, value in dat.items():
-              totalfans_1 += value
-            likes.append(int(totalfans_1-totalfans_0))
-          else:
-            likes.append(None)
-        else:
-            likes.append(None)
-
-      for i in range(0, len(dates)):
-        valuestr = ''
-        req = urllib2.Request("https://graph.facebook.com/"+ fbartistmap[artist] +"/insights/page_storytellers_by_country/days_28?since=1-" +dates[i]+ "&until=2-" +dates[i]+ "&access_token=1388859028003148|7ec5645154cf6a5ea978b5e710f784b0")
+        req = urllib2.Request("https://graph.facebook.com/" + fbartistmap[artist] + "/insights?since=1-" +dates[i+1]+ "&until=2-" +dates[i+1]+ "&access_token=1388859028003148|7ec5645154cf6a5ea978b5e710f784b0")
         response = urllib2.urlopen(req)
-
         obj = json.loads(response.read())
         if obj['data'] and obj['data'][0] and obj['data'][0]['values'] and obj['data'][0]['values'][0] and obj['data'][0]['values'][0]['value']:
           dat = obj['data'][0]['values'][0]['value']
-          totalfans = 0
-          if dat:
-            for key, value in dat.items():
-              totalfans += value
-            interactions.append(int(totalfans))
+          totalfans_1 = 0
+          for key, value in dat.items():
+            totalfans_1 += value
+          likes.append(int(totalfans_1-totalfans_0))
         else:
-          likes.append(None)      
+          likes.append(None)
+      else:
+          likes.append(None)
+
+    for i in range(0, len(dates)):
+      valuestr = ''
+      req = urllib2.Request("https://graph.facebook.com/"+ fbartistmap[artist] +"/insights/page_storytellers_by_country/days_28?since=1-" +dates[i]+ "&until=2-" +dates[i]+ "&access_token=1388859028003148|7ec5645154cf6a5ea978b5e710f784b0")
+      response = urllib2.urlopen(req)
+
+      obj = json.loads(response.read())
+      if obj['data'] and obj['data'][0] and obj['data'][0]['values'] and obj['data'][0]['values'][0] and obj['data'][0]['values'][0]['value']:
+        dat = obj['data'][0]['values'][0]['value']
+        totalfans = 0
+        if dat:
+          for key, value in dat.items():
+            totalfans += value
+          interactions.append(int(totalfans))
+      else:
+        likes.append(None)      
 
     print "finished fb"
     return [dates, likes, interactions]

@@ -46,8 +46,11 @@
 <!--             <li><a data-toggle="modal" data-target="#myModal">Settings</a></li>
  -->            <li><a data-toggle="modal" data-target="#myModal">Profile</a></li>
           </ul>
-          <form class="navbar-form navbar-right">
-            <input type="text" class="form-control" placeholder="Search... (Coming soon) ">
+          <form class="navbar-form navbar-right" id="search" role="search">
+              <div class="form-group">
+                  <input type="text" class="form-control" id="searchtext" placeholder="Search" style="border-bottom-right-radius:0px; border-top-right-radius:0px">
+              </div>
+              <button type="submit" id="searchsubmit" class="btn btn-default" style="margin-left:-4px; border-top-left-radius:0px; border-bottom-left-radius:0px"><span class="glyphicon glyphicon-search"></span></button>
           </form>
         </div>
       </div>
@@ -77,7 +80,7 @@
  -->        </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
             <h1>List of Artists</h1>
-            <p>To see an artists profile, please click on an artist below</p>
+            <p>To see an artist's profile, please click on an artist below</p>
             <ul>
             {% for key, value in artists.iteritems() %}
                   <li><a href= "/artists/{{ value }}">{{ key }}</li>
@@ -261,6 +264,15 @@
     <script src="http://code.highcharts.com/stock/modules/exporting.js"></script>
     <script src="http://code.highcharts.com/highcharts.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
+    <script>
+    $("#search").submit(function(event) {
+        var artist = $("#searchtext").val();
+        var artistclean = artist.toLowerCase().replace(/ /g, '');
+        console.log(artistclean);
+        event.preventDefault();
+        window.location.href='/artists/' + artistclean;
+      });
+    </script>
     <script src="/static/js/fb.js"></script>
     <script src="/static/js/charts.js"></script>
     <script src="/static/js/docs.min.js"></script>

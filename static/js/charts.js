@@ -50,7 +50,7 @@ $(document).ready(function() {
             },
             yAxis: {
                 title: {
-                    text: 'Ranking'
+                    text: 'Ranking this month:'
                 },
                 plotLines: [{
                     value: 0,
@@ -59,7 +59,7 @@ $(document).ready(function() {
                 }]
             },
             tooltip: {
-                valueSuffix: ' Rank in Months'
+                valueSuffix: ''
             },
             legend: {
                 layout: 'vertical',
@@ -68,7 +68,7 @@ $(document).ready(function() {
                 borderWidth: 0
             },
             series: [{
-                name: 'Ranking',
+                name: 'Ranking this month',
                 data: artnet
             },]
         });
