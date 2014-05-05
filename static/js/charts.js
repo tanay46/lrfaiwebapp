@@ -1,5 +1,5 @@
 $(document).ready(function() {
-
+        var metricSeries = calculateMetricSeries();
         // console.log(wikix);
         console.log(wikiy);
         $('#wikipedia').highcharts({
@@ -153,7 +153,7 @@ $(document).ready(function() {
                 },
                 categories: aucx
             },
-            yAxis: {
+            yAxis: [{
                 title: {
                     text: ' Price'
                 },
@@ -162,7 +162,17 @@ $(document).ready(function() {
                     width: 1,
                     color: '#808080'
                 }]
-            },
+            }, { // secondary
+                title: {
+                    text: '% of Range Over High Estimate',
+                },
+                labels: {
+                    formatter: function() {
+                        return this.value.toFixed(1) + ' %';
+                    }
+                },
+                opposite: true
+            }],
             legend: {
                 layout: 'vertical',
                 align: 'right',
@@ -178,6 +188,10 @@ $(document).ready(function() {
             },{
                 name: ' Sale Price',
                 data: aucfinal
+            },{
+                name: ' % Over High Estimate',
+                data: metricSeries,
+                yAxis: 1
             }]
 
 });
@@ -280,14 +294,30 @@ function printCharts(charts) {
     }, 500);
 }
 
-    
+function calculateMetricSeries(){
+ var metricSeries = [];
+ if (!aucx || aucx && aucx.length < 1){
+        return [];
+    }
+    for (var i = 0; i < auchigh.length; i++) {
+        var range = auchigh[i]-auclow[i];
+        var sale_diff_from_high = aucfinal[i]-auchigh[i];
+        var percent = sale_diff_from_high/range;
+        metricSeries.push(percent*100);
+    } 
+    console.log(metricSeries);
+    return metricSeries;
+}
+
+
 function calculateAuctionStats(){
     if (!aucx || aucx && aucx.length < 1){
         return 0;
     }
     var totalpercent = 0;
-    for (var i = 0; i < aucx.length; i++) {
+    for (var i = 0; i < auchigh.length; i++) {
         var range = auchigh[i]-auclow[i];
+        console.log(range);
         var sale_diff_from_high = aucfinal[i]-auchigh[i];
         var percent = sale_diff_from_high/range;
         totalpercent += percent;

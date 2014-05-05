@@ -110,7 +110,7 @@
           {% if aucx %}
           <div id="auction-container">
             <div id ="auction">
-            </div><br>
+            </div><br><p style="text-align:center; color:grey; font-size:10px;">% Over High Estimate = (selling price - high estimate)/(high estimate - low estimate)</p><br>
             <h4>Auction Trend</h4>
             <div>
             <table class="table table-bordered">
@@ -317,6 +317,13 @@
       var auclow = {{ auclow |tojson| safe }}
       var auchigh = {{ auchigh |tojson| safe }}
       var aucfinal = {{ aucfinal |tojson| safe }}
+      if(aucx != null){
+        aucx.reverse();
+        auclow.reverse();
+        auchigh.reverse();
+        aucfinal.reverse();
+      }
+
     </script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     <script src="http://code.highcharts.com/stock/highstock.js"></script>

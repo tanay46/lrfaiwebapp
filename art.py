@@ -26,8 +26,26 @@ class ArtData:
       line = line.strip()
       listofart.append(line)
     print listofart
-    for name in listofart[5:25]:
+    for name in listofart[7:12]:
+      #self.updateauc(name)
       self.makeartist(name)
+
+  def updateauc(self, artistname):
+    client = MongoClient(self.MONGOHQ_URL)
+    db = client.artists
+    collection = db.artists
+    #fb = self.facebook(artistname)
+    
+    artist = collection.find_one({"name": artistname})
+    if artist:
+      if 1:
+        auc = self.auction(artistname)
+        collection.update({'name': artistname},
+           {
+              '$set': { 'aucx': auc[0], 'auclow': auc[1], 'auchigh': auc[2], 'aucfinal': auc[3]}
+           }
+        )
+    print artistname
 
   def makeartist(self, artistname):
     client = MongoClient(self.MONGOHQ_URL)
@@ -222,7 +240,21 @@ class ArtData:
     return [endlist[-52:], countlist[-52:]]
 
   def auction(self, artist):
-    aucartistmap = {'Banksy':'banksy', 'Andy Warhol':'andy-warhol','Agnes Martin':'agnes-martin', 'Roy Lichtenstein':'roy-lichtenstein','Keith Haring':'keith-haring', 'Pablo Picasso':'pablo-picasso'}
+    joan = 'joan-mir%C3%B3'
+    dali = 'salvador-dal%C3%AD'
+    aucartistmap = {'Banksy':'banksy', 'Andy Warhol':'andy-warhol','Agnes Martin':'agnes-martin', 
+    'Roy Lichtenstein':'roy-lichtenstein','Keith Haring':'keith-haring', 'Marc Chagall':'marc-chagall',
+    'Carrie Mae Weems':'carrie+mae-weems','Karl Schmidt-Rottluff':'karl-schmidt-rottluff','Andreas Gursky':'andreas-gursky',
+    'Louise Lawler':'louise-lawler','Robert Mapplethorpe':'robert-mapplethorpe','Jean-Michel Basquiat':'jean-michel-basquiat',
+    'Alexander Calder':'alexander-calder','Pablo Picasso':'pablo-picasso','Joan Miro':joan,
+    'Michael Dweck':'michael-dweck','Victor Vasarely':'victor-vasarely','Maurice Utrillo':'maurice-utrillo',
+    'Damien Hirst':'damien-hirst', 'Salvador Dali':dali, 'Fernando Botero':'fernando-botero',
+    'Vik Muniz':'vik-muniz'}
+
+    if artist not in aucartistmap:
+      return [[],[],[],[]]
+
+    #aucartistmap = {'Banksy':'banksy', 'Andy Warhol':'andy-warhol','Agnes Martin':'agnes-martin', 'Roy Lichtenstein':'roy-lichtenstein','Keith Haring':'keith-haring', 'Pablo Picasso':'pablo-picasso'}
     dates = []
     low = []
     high = []
@@ -238,33 +270,67 @@ class ArtData:
       links.append(linkdoms[i]['href'])
 
     datedoms = soup.find_all("span", class_="font10")
-    for i in range(1, len(datedoms), 2):
-      if datedoms[i].text.find("Sold:") != -1:
-        dates.append((datedoms[i].text[6:]).encode('ascii'))
+    #for i in range(1, len(datedoms), 2):
+     # if datedoms[i].text.find("Sold:") != -1:
+      #  dates.append((datedoms[i].text[6:]).encode('ascii'))
 
     print dates
-
+    #baseurl = 'http://www.artnet.com'
     for i in range(0, len(links)):
-      response = urllib2.urlopen(baseurl+links[i])
+      if links[i].find('de-cirque-the-heart-of-the-circus') != -1:
+        links[i] = '/artists/marc-chagall/le-c%C5%93ur-de-cirque-the-heart-of-the-circus-vn6FSjyB2SEn6dngcBssHg2'
+      if links[i].find('colombe-volant') != -1:
+        links[i] = '/artists/pablo-picasso/colombe-volant-%C3%A0-larc-en-ciel-kJzIynT8DnRPFz5l2W1Dsw2'
+      if links[i].find('JxsROTp2NKgtlVChhVsvyA2') != -1:
+        links[i] = '/artists/pablo-picasso/fran%C3%A7oise-JxsROTp2NKgtlVChhVsvyA2'
+      if links[i].find('0ytu89bTAH_S46Gtd4faMw2')  != -1:
+        links[i] = '/artists/pablo-picasso/jacqueline-de-profil-%C3%A0-droite-portrait-of-0ytu89bTAH_S46Gtd4faMw2'
+      try:
+        offset = 9+len(aucartistmap[artist])
+        if artist == 'Joan Miro':
+          offset = 18
+        if artist == 'Salvador Dali':
+          offset = 22
+        print baseurl+ links[i][offset:]
+        response = urllib2.urlopen(baseurl+links[i][offset:])
+        if datedoms[i*2+1].text.find("Sold:") != -1:
+          dates.append((datedoms[i*2+1].text[6:]).encode('ascii'))
+
+      except UnicodeEncodeError:
+        continue
       html_doc = response.read() 
       soup = BeautifulSoup(html_doc, "lxml")
-      est = soup.find_all(id='lotInformation_tblCellEstimateText')
-      esttokens = est[0].text.split()
-      low.append(int(esttokens[0].replace(",", "")))
-      high.append(int(esttokens[2].replace(",", "")))
-      sold = soup.find_all(id='lotInformation_tblCellSoldForText')
-      soldtokens = sold[0].text.split()
-      final.append(int(soldtokens[0].replace(",", "")))
+      auclowval = soup.find_all(attrs={"itemprop" : "lowPrice"})
+      low.append(int(auclowval[0].text.replace(",", "")))
+      auchighval = soup.find_all(attrs={"itemprop" : "highPrice"})
+      high.append(int(auchighval[0].text.replace(",", "")))
+      aucsoldval = soup.find_all(attrs={"itemprop" : "price"})
+      final.append(int(aucsoldval[0].text.replace(",", "")))
+      #est = soup.find_all(id='lotInformation_tblCellEstimateText')
+      #esttokens = est[0].text.split()
+      #low.append(int(esttokens[0].replace(",", "")))
+      #high.append(int(esttokens[2].replace(",", "")))
+      #sold = soup.find_all(id='lotInformation_tblCellSoldForText')
+      #soldtokens = sold[0].text.split()
+      #final.append(int(soldtokens[0].replace(",", "")))
 
-    #print low
-    #print high
-    #print final
+    print low
+    print high
+    print final
     print "finished auction"
     return [dates, low, high, final] 
 
   def facebook(self, artist):
+    dali = 'Salvador-Dal%%C3%%AD'
     dates = ["apr-13", "may-13", "jun-13", "jul-13", "aug-13", "sep-13", "oct-13", "nov-13", "dec-13", "jan-14", "feb-14", "mar-14"]
-    fbartistmap = {'Banksy':'banksy', 'Andy Warhol':'andywarholpaintings','Agnes Martin':'Agnes-Martin', 'Roy Lichtenstein':'roylichtenstein1','Keith Haring':'Keith-Haring'}
+    fbartistmap = {'Banksy':'banksy', 'Andy Warhol':'andywarholpaintings','Agnes Martin':'Agnes-Martin',
+     'Roy Lichtenstein':'roylichtenstein1','Keith Haring':'Keith-Haring', 'Marc Chagall':'Marc-Chagall',
+     'Carrie Mae Weems':'CarrieMaeWeems','Karl Schmidt-Rottluff':'Karl-Schmidt-Rottluff','Andreas Gursky':'Andreas-Gursky',
+     'Louise Lawler':'Louise-Lawler','Robert Mapplethorpe':'Robert-Mapplethorpe','Jean-Michel Basquiat':'mrjeanmichelbasquiat',
+     'Alexander Calder':'Alexander-Calder','Pablo Picasso':'Pablo-Picasso','Joan Miro':'Joan-Miro',
+     'Michael Dweck':'Michael-Dweck','Victor Vasarely':'Victor-Vasarely','Maurice Utrillo':'Maurice-Utrillo',
+     'Damien Hirst':'Damien-Hirst', 'Vik Muniz':'Vik-Muniz', 'Fernando Botero':'Fernando-Botero', 'Salvador Dali':dali}
+    #fbartistmap = {'Banksy':'banksy', 'Andy Warhol':'andywarholpaintings','Agnes Martin':'Agnes-Martin', 'Roy Lichtenstein':'roylichtenstein1','Keith Haring':'Keith-Haring'}
     valuestr = ''
     likes = []
     interactions = []
